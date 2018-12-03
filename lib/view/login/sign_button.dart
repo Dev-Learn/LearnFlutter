@@ -4,7 +4,7 @@ class SignButton extends StatefulWidget {
   final HandleSubmit onPressed;
   final FocusNode focus;
 
-  SignButton({this.onPressed, this.focus, Key key}) : super(key : key);
+  SignButton({this.onPressed, this.focus, Key key}) : super(key: key);
 
   @override
   _SignButtonState createState() => new _SignButtonState();
@@ -33,16 +33,17 @@ class _SignButtonState extends State<SignButton> with SingleTickerProviderStateM
             tag: "width")
         .addAnimatable(
             animatable: Tween(
-              begin: SizeUtil.instance.getSize(133),
-              end: SizeUtil.instance.getSize(133),
+              begin: SizeUtil.instance.getSize(10),
+              end: SizeUtil.instance.getSize(100),
             ),
-            from: const Duration(milliseconds: 250),
-            to: const Duration(milliseconds: 1000),
-            tag: "width")
+            from: Duration.zero,
+            to: const Duration(milliseconds: 100),
+            curve: Curves.linear,
+            tag: "border")
         .addAnimatable(
             animatable: Tween(
               begin: SizeUtil.instance.getSize(133),
-              end: SizeUtil.instance.getSize(1000),
+              end: 1000.0,
             ),
             from: const Duration(milliseconds: 1000),
             to: const Duration(milliseconds: 1500),
@@ -50,7 +51,8 @@ class _SignButtonState extends State<SignButton> with SingleTickerProviderStateM
         .animate(controller);
     controller.addListener(() {
       if (controller.isCompleted) {
-//        Navigator.pushReplacement(context, MainPageRoute());
+        Navigator.pushReplacement(
+                context, AnimatedPageRoute(child: HomeView(), transitionType: TransitionType.Fade, duration: Duration(milliseconds: 500)));
       }
     });
   }
@@ -67,29 +69,37 @@ class _SignButtonState extends State<SignButton> with SingleTickerProviderStateM
   }
 
   Widget _buildAnimation(BuildContext context, Widget child) {
-    print(sequenceAnimation["width"].value);
-    return InkWell(
-      onTap: onSubmit,
-      child: Container(
-        width:  sequenceAnimation["zoomout"].value == SizeUtil.instance.getSize(133) ? sequenceAnimation["width"].value : sequenceAnimation["zoomout"].value,
-        height: sequenceAnimation["zoomout"].value == SizeUtil.instance.getSize(133) ? SizeUtil.instance.getSize(133) : sequenceAnimation["zoomout"].value,
-        alignment: FractionalOffset.center,
-        decoration: BoxDecoration(
-            color: primaryColor,
-            borderRadius: sequenceAnimation["zoomout"].value < SizeUtil.instance.getSize(1000) ? BorderRadius.all(const Radius.circular(100)) : BorderRadius.all(const Radius.circular(0.0))),
-        child: sequenceAnimation["width"].value > 60
-            ? new NoScaleFactorText(
-                _title,
-                style: new TextStyle(
-                  color: Colors.white,
-                  fontSize: SizeUtil.instance.getSize(43),
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.3,
-                ),
-              )
-            : sequenceAnimation["zoomout"].value < SizeUtil.instance.getSize(333) ? new CircularProgressIndicator(
-                valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
-              ) : SizedBox(),
+    return Material(
+      color: primaryColor,
+      borderRadius: sequenceAnimation["zoomout"].value < SizeUtil.instance.getSize(500)
+          ? BorderRadius.all(Radius.circular(sequenceAnimation["border"].value))
+          : BorderRadius.all(Radius.circular(0.0),),
+      child: InkWell(
+        onTap: onSubmit,
+        child: Container(
+          width: sequenceAnimation["zoomout"].value == SizeUtil.instance.getSize(133)
+              ? sequenceAnimation["width"].value
+              : sequenceAnimation["zoomout"].value,
+          height: sequenceAnimation["zoomout"].value == SizeUtil.instance.getSize(133)
+              ? SizeUtil.instance.getSize(133)
+              : sequenceAnimation["zoomout"].value,
+          alignment: FractionalOffset.center,
+          child: sequenceAnimation["width"].value > 60
+              ? new NoScaleFactorText(
+                  _title,
+                  style: new TextStyle(
+                    color: Colors.white,
+                    fontSize: SizeUtil.instance.getSize(43),
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.3,
+                  ),
+                )
+              : sequenceAnimation["zoomout"].value < SizeUtil.instance.getSize(333)
+                  ? new CircularProgressIndicator(
+                      valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : SizedBox(),
+        ),
       ),
     );
   }
@@ -97,12 +107,12 @@ class _SignButtonState extends State<SignButton> with SingleTickerProviderStateM
   Future<Null> _playAnimation() async {
     try {
       await controller.forward();
-      await controller.reverse();
+//      await controller.reverse();
     } on TickerCanceled {}
   }
 
   void onSubmit() {
-    FocusScope.of(context).requestFocus(widget.focus?? FocusNode());
+    FocusScope.of(context).requestFocus(widget.focus ?? FocusNode());
     setState(() {
       _title = "Singing In ...";
       isLoading = true;

@@ -3,12 +3,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:manga4dog/base/contract/base_contract.dart';
-import 'package:manga4dog/base/dialog/loading_dialog.dart';
-import 'package:manga4dog/base/exception/exceptions.dart';
-import 'package:manga4dog/base/no_scale_factor_text.dart';
-import 'package:manga4dog/base/observable_life_cycle/observable_life_cycle.dart';
-import 'package:manga4dog/base/resources/strings.dart';
+import 'package:base/contract/base_contract.dart';
+import 'package:base/dialog/loading_dialog.dart';
+import 'package:base/exception/exceptions.dart';
+import 'package:base/no_scale_factor_text.dart';
+import 'package:base/observable_life_cycle/observable_life_cycle.dart';
+import 'package:base/resources/strings.dart';
 
 abstract class BaseState<T extends StatefulWidget> extends State<T> implements BaseContract {
   final LifeCycleRegistry _lifeCycleRegistry = LifeCycleRegistry();
@@ -84,24 +84,6 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> implements B
       _hasDialogShowing = false;
       Navigator.of(context, rootNavigator: true).pop();
     }
-  }
-
-  String _getErrorMsg(Exception exception, {String unknownError}) {
-    String msg;
-    if (exception is SocketException || exception is TimeoutException) {
-      msg = Strings.SERVER_ERROR;
-    } else if (exception is ConnectionException) {
-      msg = exception.message;
-    } else if (exception is ManuallyException) {
-      msg = exception.message;
-    } else if (exception is HandledHttpException) {
-      msg = getHttpExceptionMessage(exception);
-    }
-    return msg ?? unknownError ?? Strings.UNKNOWN_ERROR;
-  }
-
-  String getHttpExceptionMessage(HandledHttpException exception) {
-    return Strings.SERVER_ERROR;
   }
 
   void showSnackBar(String message) {

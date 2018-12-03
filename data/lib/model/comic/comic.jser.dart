@@ -18,7 +18,11 @@ abstract class _$ComicSerializer implements Serializer<Comic> {
     setMapValue(ret, 'title', model.title);
     setMapValue(ret, 'description', model.description);
     setMapValue(ret, 'image', model.image);
-    setMapValue(ret, 'genre', _genreSerializer.toMap(model.genre));
+    setMapValue(
+        ret,
+        'genres',
+        codeIterable(
+            model.genres, (val) => _genreSerializer.toMap(val as Genre)));
     return ret;
   }
 
@@ -30,7 +34,8 @@ abstract class _$ComicSerializer implements Serializer<Comic> {
     obj.title = map['title'] as String;
     obj.description = map['description'] as String;
     obj.image = map['image'] as String;
-    obj.genre = _genreSerializer.fromMap(map['genre'] as Map);
+    obj.genres = codeIterable<Genre>(map['genres'] as Iterable,
+        (val) => _genreSerializer.fromMap(val as Map));
     return obj;
   }
 }

@@ -13,7 +13,7 @@ class Comic{
 
   String image;
 
-  Genre genre;
+  List<Genre> genres;
 
   Comic();
 
@@ -22,7 +22,7 @@ class Comic{
     this.title,
     this.description,
     this.image,
-    this.genre,
+    this.genres,
   });
 
 }

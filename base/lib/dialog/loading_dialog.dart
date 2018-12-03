@@ -1,7 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:manga4dog/base/dialog/base_dialog.dart';
+import 'package:base/dialog/base_dialog.dart';
 
 class LoadingDialog extends StatefulWidget {
   @override

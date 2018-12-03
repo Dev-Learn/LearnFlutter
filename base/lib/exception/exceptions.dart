@@ -1,6 +1,6 @@
 
 
-import 'package:manga4dog/base/resources/strings.dart';
+import 'package:base/resources/strings.dart';
 
 class HandledHttpException implements Exception {
 

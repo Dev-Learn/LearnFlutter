@@ -3,10 +3,16 @@ import 'dart:convert';
 
 import 'package:data/common/shared_preferences_manager.dart';
 
-import 'keys.dart';
+import 'package:data/keys.dart';
 import 'package:http/http.dart';
 
 class AuthManager {
+
+  AuthManager._internal();
+
+  static final AuthManager _singleton = AuthManager._internal();
+
+  factory AuthManager() => _singleton;
 
   OauthClient get oauthClient => _oauthClient;
   String get token => _token;
@@ -16,22 +22,11 @@ class AuthManager {
   OauthClient _oauthClient;
   String _token;
 
-  static AuthManager _singleton;
-
-  static AuthManager getInstance() {
-    if (_singleton == null) {
-      _singleton = new AuthManager._internal();
-    }
-    return _singleton;
-  }
-
   Future init() async {
     SharedPreferencesManager prefs = await SharedPreferencesManager
         .getInstance();
     _oauthClient = new OauthClient(_client, prefs.token);
   }
-
-  AuthManager._internal();
 
   Future logout() async {
     SharedPreferencesManager sharedPreferencesManager =
@@ -54,11 +49,12 @@ class AuthManager {
       'email': email,
       'password': password,
     });
-
+    
     final loginResponse = await _client
         .post('$BASE_URL/login',
-        body: requestBody)
-        .whenComplete(_client.close);
+        headers: {'Content-Type':'application/json'},
+        body: requestBody);
+//        .whenComplete(_client.close);
 
     if (loginResponse.statusCode == 200) {
       final bodyJson = json.decode(loginResponse.body);
@@ -82,7 +78,8 @@ abstract class _AuthClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) {
-    request.headers['token'] = _authorization;
+    request.headers.putIfAbsent('Content-Type', () => 'application/json');
+    request.headers.putIfAbsent('token', () => _authorization);
     return _client.send(request);
   }
 }

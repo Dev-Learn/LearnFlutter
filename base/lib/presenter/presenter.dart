@@ -1,7 +1,7 @@
 
 import 'dart:async';
 
-import 'package:manga4dog/base/observable_life_cycle/observable_life_cycle.dart';
+import 'package:base/observable_life_cycle/observable_life_cycle.dart';
 import 'package:meta/meta.dart';
 
 abstract class Presenter<V extends LifeCycleOwner> implements LifeCycleObserver {

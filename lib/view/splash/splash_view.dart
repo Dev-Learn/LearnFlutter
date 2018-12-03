@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:manga4dog/base/util/size_util.dart';
 import 'package:data/auth/auth_manager.dart';
 import 'package:data/common/shared_preferences_manager.dart';
 import 'package:manga4dog/view/login/login_view.dart';
+import 'package:base/widgets/transition_animation.dart';
 
 class SplashView extends StatefulWidget {
   @override
@@ -38,7 +38,7 @@ class _SplashViewState extends State<SplashView> {
   }
 
   Future _init() async {
-    await AuthManager.getInstance().init();
+    await AuthManager().init();
 
     SharedPreferencesManager sharedPreferencesManager = await SharedPreferencesManager.getInstance();
     Future.delayed(const Duration(milliseconds: 1500)).then((_) async {
@@ -49,17 +49,7 @@ class _SplashViewState extends State<SplashView> {
         w = LoginView();
       }
       Navigator.of(context).push(
-        PageRouteBuilder(
-            pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) => w,
-            transitionDuration: Duration(milliseconds: 1000),
-            transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child){
-              Animation<Offset> slideAnimation = Tween(begin: Offset(1.0, 0.0), end: Offset.zero).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut));
-              return SlideTransition(
-                position: slideAnimation,
-                child: child,
-              );
-            }
-        ),
+        AnimatedPageRoute(child: w, duration: Duration(milliseconds: 1000), transitionType: TransitionType.FromRight),
       );
     });
   }

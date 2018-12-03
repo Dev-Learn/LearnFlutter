@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:manga4dog/base/util/size_util.dart';
+import 'package:base/util/size_util.dart';
 
 class BaseDialog extends StatelessWidget {
   const BaseDialog({

@@ -12,7 +12,5 @@ abstract class BaseContract extends LifeCycleOwner {
 
   void onDisplayErrorWithTryAgain(Exception exception, VoidCallback onTryAgain);
 
-  void onForceNavigateToLoginScreen();
-
   bool get isMounted;
 }
