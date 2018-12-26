@@ -5,17 +5,18 @@ import 'package:data/auth/auth_manager.dart';
 import 'package:data/common/shared_preferences_manager.dart';
 import 'package:manga4dog/view/login/login_view.dart';
 import 'package:base/widgets/transition_animation.dart';
+import 'package:flutter/scheduler.dart';
 
 class SplashView extends StatefulWidget {
   @override
   _SplashViewState createState() => _SplashViewState();
 }
 
-class _SplashViewState extends State<SplashView> {
+class _SplashViewState extends State<SplashView>{
   @override
   void initState() {
     super.initState();
-    _init();
+    SchedulerBinding.instance.addPostFrameCallback((_) => _init());
   }
 
   @override
@@ -48,9 +49,11 @@ class _SplashViewState extends State<SplashView> {
       } else {
         w = LoginView();
       }
+
       Navigator.of(context).push(
         AnimatedPageRoute(child: w, duration: Duration(milliseconds: 1000), transitionType: TransitionType.FromRight),
       );
+
     });
   }
 }

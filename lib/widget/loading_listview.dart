@@ -2,12 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:manga4dog/utils/function.dart';
+import 'dart:math' as math;
 
-typedef Future<List<T>> PageRequest<T>(int page, int pageSize);
-typedef Widget WidgetAdapter<T>(T t, {bool isAnimate});
-typedef int GetPageOffset<T>(T t);
-
-class LoadingListViewByKey<T> extends StatefulWidget {
+class LoadingListView<T> extends StatefulWidget {
   final PageRequest<T> pageRequest;
 
   final WidgetAdapter<T> widgetAdapter;
@@ -18,44 +16,68 @@ class LoadingListViewByKey<T> extends StatefulWidget {
 
   final bool reverse;
 
-  final GetPageOffset<T> getPageOffset;
+  final int startFrom;
 
   final double cacheExtent;
 
-  LoadingListViewByKey(this.pageRequest,
-      {@required this.widgetAdapter, @required this.getPageOffset, this.pageSize: 20, this.pageThreshold: 3, this.cacheExtent, this.reverse: false, Key key})
+  final bool addAutomaticKeepAlives;
+
+  final bool addRepaintBoundaries;
+
+  LoadingListView(this.pageRequest,
+      {this.pageSize: 20,
+      this.pageThreshold: 3,
+      @required this.widgetAdapter,
+      this.reverse: false,
+      Key key,
+      this.startFrom: 1,
+      this.cacheExtent: 250.0,
+      this.addAutomaticKeepAlives: true,
+      this.addRepaintBoundaries : true})
       : super(key: key);
 
   @override
-  LoadingListViewByKeyState createState() => LoadingListViewByKeyState<T>();
+  LoadingListViewState createState() => LoadingListViewState<T>();
 }
 
-class LoadingListViewByKeyState<T> extends State<LoadingListViewByKey<T>> with AutomaticKeepAliveClientMixin<LoadingListViewByKey<T>> {
+class LoadingListViewState<T> extends State<LoadingListView<T>> with TickerProviderStateMixin {
   List<T> objects = [];
   Map<int, int> index = {};
   Future request;
   bool isPerformingRequest = true;
   bool isLoadMore = true;
-  bool isAnimate = false;
+
+//  bool isAnimate = false;
   bool isScroll = false;
+  int lastItemBuilt = 0;
+
+//  ScrollController _scrollController = ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
 
   @override
   void initState() {
     super.initState();
     this.lockedLoadNext();
+//    _scrollController.addListener((){
+//      if (_scrollController.position.extentAfter - _scrollController.offset <
+//              50) {
+//        lockedLoadNext();
+//      }
+//    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      cacheExtent: widget.cacheExtent,
-      addRepaintBoundaries: true,
-      addAutomaticKeepAlives: false,
-      itemBuilder: itemBuilder,
-      itemCount: objects.length + (isLoadMore ? 1 : 0),
-      reverse: widget.reverse,
-      physics: AlwaysScrollableScrollPhysics(),
-      shrinkWrap: true,
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView.builder(
+        cacheExtent: widget.cacheExtent,
+        addRepaintBoundaries: widget.addRepaintBoundaries,
+        addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
+        itemBuilder: itemBuilder,
+        itemCount: objects.length + (isLoadMore ? 1 : 0),
+        reverse: widget.reverse,
+//        controller: _scrollController,
+      ),
     );
   }
 
@@ -65,13 +87,19 @@ class LoadingListViewByKeyState<T> extends State<LoadingListViewByKey<T>> with A
     }
 
     if (index == objects.length) return _buildProgressIndicator();
-
-    return widget.widgetAdapter != null ? widget.widgetAdapter(objects[index]) : new SizedBox();
+    bool isAnimate = false;
+    if (index > lastItemBuilt) {
+      isAnimate = true;
+      lastItemBuilt = index;
+    }
+    return widget.widgetAdapter != null
+        ? widget.widgetAdapter(objects[index], index, ticker: this, isAnimate: isAnimate)
+        : new SizedBox();
   }
 
   Future loadNext() async {
     if (isLoadMore) {
-      int page = objects.length == 0 ? 0 : widget.getPageOffset(objects.last);
+      int page = (objects.length / widget.pageSize).ceil() + widget.startFrom;
       List<T> fetched = await widget.pageRequest(page, widget.pageSize);
 
       if (fetched == null || fetched.length == 0 || fetched.length < widget.pageSize) {
@@ -123,8 +151,4 @@ class LoadingListViewByKeyState<T> extends State<LoadingListViewByKey<T>> with A
       ),
     );
   }
-
-  @override
-  // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
 }

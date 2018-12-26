@@ -1,22 +1,11 @@
+import 'package:base/util/size_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:base/util/size_util.dart';
+import 'package:manga4dog/widget/image_loader/image_pool.dart';
 
 import 'view/splash/splash_view.dart';
 
-void main(){
-
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.black,
-  ));
-
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-    DeviceOrientation.landscapeRight,
-    DeviceOrientation.landscapeLeft,
-  ]).then((_) => runApp(new MyApp()));
-}
+void main() => runApp(new MyApp());
 
 class MyApp extends StatefulWidget {
   @override
@@ -24,15 +13,27 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    super.initState();
+    ImagePool().init();
+  }
+
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     return MaterialApp(
       //showPerformanceOverlay: true,
-      home: LayoutBuilder(
-        builder: (context, boxConstraint) {
-          SizeUtil.instance.init(boxConstraint.maxWidth, boxConstraint.maxHeight);
-          return SplashView();
-        },
+      home: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, boxConstraint) {
+            SizeUtil.instance.init(boxConstraint.maxWidth, boxConstraint.maxHeight);
+            return SplashView();
+          },
+        ),
       ),
     );
   }

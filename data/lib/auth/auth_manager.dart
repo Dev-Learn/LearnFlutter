@@ -22,24 +22,24 @@ class AuthManager {
   OauthClient _oauthClient;
   String _token;
 
+  SharedPreferencesManager _prefs;
+  SharedPreferencesManager get sharedPreferences => _prefs;
+
   Future init() async {
-    SharedPreferencesManager prefs = await SharedPreferencesManager
+     _prefs = await SharedPreferencesManager
         .getInstance();
-    _oauthClient = new OauthClient(_client, prefs.token);
+    _oauthClient = new OauthClient(_client, _prefs.token);
   }
 
   Future logout() async {
-    SharedPreferencesManager sharedPreferencesManager =
-    await SharedPreferencesManager.getInstance();
-    sharedPreferencesManager.reset();
+    _prefs.reset();
   }
 
   Future<bool> _saveTokens(String ownerName, String oauthToken, String password) async {
-    SharedPreferencesManager prefs = await SharedPreferencesManager.getInstance();
-    prefs.token = oauthToken;
-    prefs.owner = ownerName;
-    prefs.password = password;
-    _token = prefs.token;
+    _prefs.token = oauthToken;
+    _prefs.owner = ownerName;
+    _prefs.password = password;
+    _token = _prefs.token;
     _oauthClient = new OauthClient(_client, oauthToken);
     return true;
   }
@@ -51,7 +51,7 @@ class AuthManager {
     });
     
     final loginResponse = await _client
-        .post('$BASE_URL/login',
+        .post('$FIVE_URL/login',
         headers: {'Content-Type':'application/json'},
         body: requestBody);
 //        .whenComplete(_client.close);

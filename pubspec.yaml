@@ -27,6 +27,10 @@ dependencies:
   cupertino_icons: ^0.1.2
   jaguar_serializer: ^2.2.0
   flutter_sequence_animation: any
+  nima: any
+  isolate: ^2.0.2
+  image: ^2.0.5
+  flutter_image_compress: ^0.2.3
   cached_network_image: any
 
 dev_dependencies:
