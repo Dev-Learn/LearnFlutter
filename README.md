@@ -1,4 +1,4 @@
-# manga4dog
+# manga
 
 A new Flutter project.
 
